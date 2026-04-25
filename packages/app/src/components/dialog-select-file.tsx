@@ -18,6 +18,7 @@ import { useSessionLayout } from "@/pages/session/session-layout"
 import { createSessionTabs } from "@/pages/session/helpers"
 import { decode64 } from "@/utils/base64"
 import { getRelativeTime } from "@/utils/time"
+import { parsePalettePrefix } from "./dialog-select-file-prefix"
 
 type EntryType = "command" | "file" | "session"
 
@@ -307,9 +308,33 @@ export function DialogSelectFile(props: { mode?: DialogSelectFileMode; onOpenFil
 
   const { sessions } = createSessionEntries({ workspaces, label, globalSDK, language })
 
+  const decorate = (entry: Entry, marker: string): Entry => ({
+    ...entry,
+    title: `${marker} ${entry.title}`,
+  })
+
+  const symbolHintEntry = (): Entry => ({
+    id: "hint:symbol",
+    type: "command",
+    title: "@ Symbol search",
+    description: "Symbol search arrives once the LSP integration ships. Use > for commands or just type for files.",
+    category: language.t("palette.group.commands"),
+  })
+
   const items = async (text: string) => {
     const query = text.trim()
     setGrouped(query.length > 0)
+
+    const { mode, body: rawBody } = parsePalettePrefix(query)
+    const body = rawBody.trim()
+
+    if (mode === "symbols" && !filesOnly()) {
+      return [symbolHintEntry()]
+    }
+
+    if (mode === "commands" && !filesOnly()) {
+      return commandEntries.list().map((entry) => decorate(entry, ">"))
+    }
 
     if (!query && filesOnly()) {
       const loaded = file.tree.state("")?.loaded
@@ -328,7 +353,7 @@ export function DialogSelectFile(props: { mode?: DialogSelectFileMode; onOpenFil
     if (!query) return [...commandEntries.picks(), ...fileEntries.recent()]
 
     if (filesOnly()) {
-      const files = await file.searchFiles(query)
+      const files = await file.searchFiles(body || query)
       const category = language.t("palette.group.files")
       return files.map((path) => createFileEntry(path, category))
     }
