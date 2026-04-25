@@ -78,6 +78,42 @@ sonrası ihtiyaca göre yeniden sıralanabilir.
 28 madde kaldı (17 madde kesildi → daha iyi roadmap)
 ~28 saat work
 8 tagged release: v0.4.2 → v0.6.2
+
+Faz 1 (1A + 1B) tamamlandı:
+  v0.4.1  yolo silent + tasks active row CSS
+  v0.4.2  persist write debounce + dedup
+  v0.4.3  prompt-history image dataUrl strip (154 MB → 107 KB)
+  +       dev:studio · ship:studio · watch:studio scriptleri (90s → 59s)
+```
+
+## Plugin landscape (Apr 2026 ekosistem audit)
+
+149K-star anomalyco/opencode etrafında 100+ aktif plugin. Birkaç backlog
+maddesi için "kendimiz yazmaktansa plugin entegre" daha akıllı:
+
+| Backlog item | Plugin alternatifi | Karar |
+|---|---|---|
+| **B1** Smart truncation | [Tarquinen/opencode-dynamic-context-pruning](https://github.com/Tarquinen/opencode-dynamic-context-pruning) | **Buy** — drop-in plugin, UI yok, sıfırdan yazma |
+| **3A/3B** Cost meter + dashboard | [slkiser/opencode-quota](https://github.com/slkiser/opencode-quota) + [ananimy/ocsight](https://github.com/ananimy/ocsight) | **Buy data, build UI** — plugin'in metric'lerini Right Panel "Cost" tab'ına wrap'la |
+| **3C** Multi-model routing | (yok, mantığı sade) | **Build** — config-driven, basit |
+| **3D** Token saver mode | dynamic-context-pruning'in alt modu | **Buy** ile birlikte gelir |
+| **4A** Subagent activity dashboard | [AnganSamadder/opencode-agent-tmux](https://github.com/AnganSamadder/opencode-agent-tmux) (TUI) | **Build, study reference** — biz SolidJS Right Panel için yapacağız |
+| **7A** Auto-archive | [cortexkit/opencode-magic-context](https://github.com/cortexkit/opencode-magic-context) | **Buy** — cross-session memory + bg compression hazır |
+
+## Backlog'a yeni eklenenler (surprise finds — research'ten)
+
+| # | İş | Effort | Sebep |
+|---|---|---|---|
+| B6 | **Plan annotator integration** ([ndom91/open-plan-annotator](https://github.com/ndom91/open-plan-annotator)) — plan mode'da inline annotation UI Right Panel'a | 1.5 saat | Sıfırdan novel, çok güzel UX |
+| B7 | **envsitter-guard** ([boxpositron/envsitter-guard](https://github.com/boxpositron/envsitter-guard)) — yolo mode için .env korumacısı | 30 dk | Yolo-mode security counter-balance, kritik |
+| B8 | **Bash output compress** ([squeez](https://github.com/claudioemmanuel/squeez)) — %95 compress | 30 dk | Token saver, B1 ile birlikte güçlü |
+
+## Tasarruf
+
+```
+Plugin entegrasyonları ~3-4 saat tasarruf sağlıyor (sıfırdan yazma yerine wrap)
+Yeni 3 madde +2.5 saat
+Net: backlog hâlâ ~28 saat ama daha az "build", daha çok "wire"
 ```
 
 ## Atlanan maddeler ve sebepleri
