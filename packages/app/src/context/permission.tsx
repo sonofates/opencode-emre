@@ -149,6 +149,12 @@ export const { use: usePermission, provider: PermissionProvider } = createSimple
     }
 
     function shouldAutoRespond(permission: PermissionRequest, directory?: string) {
+      // Yolo mode: every permission is auto-handled. This makes a single check
+      // (`autoResponds`) the source of truth for "should the UI even show
+      // this request?" — the toast in layout.tsx, the in-session dock gated
+      // by session-composer-state.ts, and the listener below all read this,
+      // so flipping yolo on instantly suppresses the entire UI cascade.
+      if (settings.permissions.bypassAll()) return true
       const session = directory ? globalSync.child(directory, { bootstrap: false })[0].session : []
       return autoRespondsPermission(store.autoAccept, session, permission, directory)
     }
@@ -170,14 +176,8 @@ export const { use: usePermission, provider: PermissionProvider } = createSimple
 
       const perm = event.properties
 
-      // Yolo mode: auto-respond to ALL permission types regardless of rules.
-      // This is intentionally unconditional and overrides every other gate
-      // including directory-scoped auto-accept and the edit-only toggle.
-      if (settings.permissions.bypassAll()) {
-        respondOnce(perm, e.name)
-        return
-      }
-
+      // shouldAutoRespond covers yolo mode AND directory-scoped auto-accept —
+      // both should respond once and never reach the UI.
       if (shouldAutoRespond(perm, e.name)) {
         respondOnce(perm, e.name)
         return

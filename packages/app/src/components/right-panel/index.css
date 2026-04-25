@@ -146,6 +146,7 @@
 
 [data-component="task-list"] [data-slot="task-list-item"][data-active="true"] {
   background-color: var(--surface-base-interactive-active, var(--surface-base));
+  box-shadow: inset 2px 0 0 var(--accent-base, var(--border-base));
 }
 
 [data-component="task-list"] [data-slot="task-list-marker"] {
@@ -170,8 +171,21 @@
 }
 
 [data-component="task-list"] [data-slot="task-list-item"][data-active="true"] [data-slot="task-list-marker"] {
+  background-color: var(--accent-base, var(--surface-strong));
   border-color: var(--accent-base, var(--border-base));
-  color: var(--accent-base, var(--text-strong));
+  color: #ffffff;
+  animation: task-active-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes task-active-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component="task-list"] [data-slot="task-list-item"][data-active="true"] [data-slot="task-list-marker"] {
+    animation: none;
+  }
 }
 
 [data-component="task-list"] [data-slot="task-list-item"][data-cancelled="true"] [data-slot="task-list-marker"] {
