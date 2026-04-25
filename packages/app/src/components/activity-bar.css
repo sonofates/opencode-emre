@@ -47,7 +47,7 @@
 }
 
 [data-component="activity-bar"] [data-slot="activity-bar-button"][data-active="true"] {
-  color: var(--icon-strong-base);
+  color: var(--accent-base, var(--icon-strong-base));
 }
 
 [data-component="activity-bar"] [data-slot="activity-bar-button"][data-active="true"]::before {
@@ -59,4 +59,8 @@
   width: 2px;
   border-radius: 1px;
   background-color: var(--accent-base, var(--icon-strong-base));
+}
+
+[data-component="activity-bar"] [data-slot="activity-bar-button"]:focus-visible {
+  box-shadow: 0 0 0 1px var(--accent-base, var(--border-base));
 }

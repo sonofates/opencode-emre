@@ -54,7 +54,7 @@
 
 [data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"]:focus-visible {
   outline: none;
-  box-shadow: var(--shadow-xs-border-focus);
+  box-shadow: 0 0 0 1px var(--accent-base, var(--border-base));
 }
 
 [data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"]:disabled {
