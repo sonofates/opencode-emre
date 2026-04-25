@@ -311,6 +311,32 @@ export function Titlebar() {
         onMouseDown={drag}
       >
         <div id="opencode-titlebar-right" class="flex items-center gap-1 shrink-0 justify-end" />
+        <TooltipKeybind
+          class="hidden xl:flex shrink-0"
+          placement="bottom"
+          title="Toggle right panel"
+          keybind={command.keybind("rightPanel.toggle")}
+        >
+          <Button
+            variant="ghost"
+            class="titlebar-icon w-8 h-6 p-0 box-border"
+            onClick={layout.rightPanel.toggle}
+            aria-label="Toggle right panel"
+            aria-expanded={layout.rightPanel.opened()}
+          >
+            <Icon size="small" name={layout.rightPanel.opened() ? "layout-right-full" : "layout-right"} />
+          </Button>
+        </TooltipKeybind>
+        <Tooltip class="hidden xl:flex shrink-0" placement="bottom" value="Open context">
+          <Button
+            variant="ghost"
+            class="titlebar-icon w-8 h-6 p-0 box-border"
+            onClick={() => command.trigger("context.open")}
+            aria-label="Open context"
+          >
+            <Icon size="small" name="status" />
+          </Button>
+        </Tooltip>
         <Show when={windows()}>
           {!tauriApi() && <div class="w-36 shrink-0" />}
           <div data-tauri-decorum-tb class="flex flex-row" />
