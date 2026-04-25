@@ -62,6 +62,7 @@ import { useCommand, type CommandOption } from "@/context/command"
 import { ConstrainDragXAxis, getDraggableId } from "@/utils/solid-dnd"
 import { ActivityBar } from "@/components/activity-bar"
 import { SidebarTabPanel } from "@/components/sidebar-tab-panel"
+import { StatusBar } from "@/components/status-bar"
 import { DebugBar } from "@/components/debug-bar"
 import { Titlebar } from "@/components/titlebar"
 import { useServer } from "@/context/server"
@@ -2513,6 +2514,7 @@ export default function Layout(props: ParentProps) {
         </div>
         {import.meta.env.DEV && <DebugBar />}
       </div>
+      <StatusBar />
       <Toast.Region />
     </div>
   )

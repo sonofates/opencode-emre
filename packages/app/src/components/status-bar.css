@@ -1,0 +1,72 @@
+[data-component="status-bar"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  padding: 0 8px;
+  background-color: var(--background-base);
+  border-top: 1px solid var(--border-weaker-base);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-small);
+  color: var(--text-base);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+[data-component="status-bar"] [data-slot="status-bar-left"],
+[data-component="status-bar"] [data-slot="status-bar-right"] {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: default;
+  white-space: nowrap;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-muted="true"] {
+  color: var(--text-weak);
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"] {
+  cursor: pointer;
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"]:hover:not(:disabled) {
+  background-color: var(--surface-base-hover);
+  color: var(--text-strong);
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"]:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-xs-border-focus);
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"] > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-component="status-bar"] [data-component="icon"] {
+  flex-shrink: 0;
+}
