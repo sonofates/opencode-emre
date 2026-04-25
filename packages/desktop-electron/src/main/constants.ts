@@ -1,8 +1,9 @@
 import { app } from "electron"
 
-type Channel = "dev" | "beta" | "prod"
+type Channel = "dev" | "beta" | "prod" | "emre"
 const raw = import.meta.env.OPENCODE_CHANNEL
-export const CHANNEL: Channel = raw === "dev" || raw === "beta" || raw === "prod" ? raw : "dev"
+export const CHANNEL: Channel =
+  raw === "dev" || raw === "beta" || raw === "prod" || raw === "emre" ? raw : "dev"
 
 export const SETTINGS_STORE = "opencode.settings"
 export const DEFAULT_SERVER_URL_KEY = "defaultServerUrl"
