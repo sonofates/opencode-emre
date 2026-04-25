@@ -2,9 +2,12 @@ import { describe, expect, test } from "bun:test"
 import { createRoot, createSignal } from "solid-js"
 import {
   ACTIVITY_TABS,
+  RIGHT_PANEL_TABS,
+  clampRightPanelWidth,
   createSessionKeyReader,
   ensureSessionKey,
   isActivityTab,
+  isRightPanelTab,
   pruneSessionKeys,
 } from "./layout"
 
@@ -86,5 +89,37 @@ describe("isActivityTab", () => {
     expect(isActivityTab(undefined)).toBe(false)
     expect(isActivityTab(42)).toBe(false)
     expect(isActivityTab(null)).toBe(false)
+  })
+})
+
+describe("isRightPanelTab", () => {
+  test("accepts every declared tab", () => {
+    for (const tab of RIGHT_PANEL_TABS) {
+      expect(isRightPanelTab(tab)).toBe(true)
+    }
+  })
+
+  test("rejects unknown values", () => {
+    expect(isRightPanelTab("chat")).toBe(false)
+    expect(isRightPanelTab(undefined)).toBe(false)
+  })
+})
+
+describe("clampRightPanelWidth", () => {
+  test("enforces minimum width", () => {
+    expect(clampRightPanelWidth(100, 1600)).toBe(280)
+  })
+
+  test("enforces half-viewport maximum", () => {
+    expect(clampRightPanelWidth(2000, 1600)).toBe(800)
+  })
+
+  test("returns default when input is not finite", () => {
+    expect(clampRightPanelWidth(Number.NaN, 1600)).toBe(360)
+    expect(clampRightPanelWidth(Number.POSITIVE_INFINITY, 1600)).toBe(360)
+  })
+
+  test("rounds and passes valid widths through", () => {
+    expect(clampRightPanelWidth(412.7, 1600)).toBe(413)
   })
 })

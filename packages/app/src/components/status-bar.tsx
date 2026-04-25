@@ -54,7 +54,13 @@ export function StatusBar() {
           <Icon name="dot-grid" size="small" />
           <span>{tabLabel()}</span>
         </span>
-        <button type="button" data-slot="status-bar-pill" data-action="true" disabled aria-label="Open context">
+        <button
+          type="button"
+          data-slot="status-bar-pill"
+          data-action="true"
+          aria-label="Open context"
+          onClick={() => layout.rightPanel.setTab("context")}
+        >
           <Icon name="status" size="small" />
           <span>Context</span>
         </button>

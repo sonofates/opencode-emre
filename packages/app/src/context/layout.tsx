@@ -28,6 +28,22 @@ export function isActivityTab(value: unknown): value is ActivityTab {
   return typeof value === "string" && (ACTIVITY_TABS as readonly string[]).includes(value)
 }
 
+export const RIGHT_PANEL_TABS = ["tasks", "preview", "context"] as const
+export type RightPanelTab = (typeof RIGHT_PANEL_TABS)[number]
+const DEFAULT_RIGHT_PANEL_TAB: RightPanelTab = "tasks"
+const DEFAULT_RIGHT_PANEL_WIDTH = 360
+const MIN_RIGHT_PANEL_WIDTH = 280
+
+export function isRightPanelTab(value: unknown): value is RightPanelTab {
+  return typeof value === "string" && (RIGHT_PANEL_TABS as readonly string[]).includes(value)
+}
+
+export function clampRightPanelWidth(width: number, viewportWidth?: number) {
+  if (!Number.isFinite(width)) return DEFAULT_RIGHT_PANEL_WIDTH
+  const max = Math.max(MIN_RIGHT_PANEL_WIDTH, Math.floor((viewportWidth ?? 1200) * 0.5))
+  return Math.min(Math.max(Math.round(width), MIN_RIGHT_PANEL_WIDTH), max)
+}
+
 export function getAvatarColors(key?: string) {
   if (key && AVATAR_COLOR_KEYS.includes(key as AvatarColorKey)) {
     return {
@@ -270,6 +286,11 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         },
         activityBar: {
           tab: DEFAULT_ACTIVITY_TAB as ActivityTab,
+        },
+        rightPanel: {
+          opened: false,
+          tab: DEFAULT_RIGHT_PANEL_TAB as RightPanelTab,
+          width: DEFAULT_RIGHT_PANEL_WIDTH,
         },
       }),
     )
@@ -591,6 +612,70 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
           }
           if (store.activityBar.tab === tab) return
           setStore("activityBar", "tab", tab)
+        },
+      },
+      rightPanel: {
+        opened: createMemo(() => store.rightPanel?.opened ?? false),
+        tab: createMemo(() => {
+          const value = store.rightPanel?.tab
+          return isRightPanelTab(value) ? value : DEFAULT_RIGHT_PANEL_TAB
+        }),
+        width: createMemo(() => {
+          const value = store.rightPanel?.width
+          return typeof value === "number" ? value : DEFAULT_RIGHT_PANEL_WIDTH
+        }),
+        open() {
+          if (!store.rightPanel) {
+            setStore("rightPanel", {
+              opened: true,
+              tab: DEFAULT_RIGHT_PANEL_TAB,
+              width: DEFAULT_RIGHT_PANEL_WIDTH,
+            })
+            return
+          }
+          if (store.rightPanel.opened) return
+          setStore("rightPanel", "opened", true)
+        },
+        close() {
+          if (!store.rightPanel) return
+          if (!store.rightPanel.opened) return
+          setStore("rightPanel", "opened", false)
+        },
+        toggle() {
+          if (!store.rightPanel) {
+            setStore("rightPanel", {
+              opened: true,
+              tab: DEFAULT_RIGHT_PANEL_TAB,
+              width: DEFAULT_RIGHT_PANEL_WIDTH,
+            })
+            return
+          }
+          setStore("rightPanel", "opened", (x) => !x)
+        },
+        setTab(tab: RightPanelTab) {
+          if (!store.rightPanel) {
+            setStore("rightPanel", {
+              opened: true,
+              tab,
+              width: DEFAULT_RIGHT_PANEL_WIDTH,
+            })
+            return
+          }
+          if (store.rightPanel.tab === tab && store.rightPanel.opened) return
+          setStore("rightPanel", (current) => ({ ...current, tab, opened: true }))
+        },
+        resize(width: number) {
+          const clamped = clampRightPanelWidth(width, typeof window !== "undefined" ? window.innerWidth : undefined)
+          if (!store.rightPanel) {
+            setStore("rightPanel", {
+              opened: true,
+              tab: DEFAULT_RIGHT_PANEL_TAB,
+              width: clamped,
+            })
+            return
+          }
+          if (store.rightPanel.width === clamped) return
+          setStore("rightPanel", "width", clamped)
         },
       },
       sidebar: {

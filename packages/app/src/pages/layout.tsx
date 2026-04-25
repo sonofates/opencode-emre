@@ -61,6 +61,7 @@ import { useTheme, type ColorScheme } from "@opencode-ai/ui/theme/context"
 import { useCommand, type CommandOption } from "@/context/command"
 import { ConstrainDragXAxis, getDraggableId } from "@/utils/solid-dnd"
 import { ActivityBar } from "@/components/activity-bar"
+import { RightPanel } from "@/components/right-panel"
 import { SidebarTabPanel } from "@/components/sidebar-tab-panel"
 import { StatusBar } from "@/components/status-bar"
 import { DebugBar } from "@/components/debug-bar"
@@ -1022,6 +1023,13 @@ export default function Layout(props: ParentProps) {
         category: language.t("command.category.view"),
         keybind: "mod+b",
         onSelect: () => layout.sidebar.toggle(),
+      },
+      {
+        id: "rightPanel.toggle",
+        title: "Toggle right panel",
+        category: language.t("command.category.view"),
+        keybind: "mod+j",
+        onSelect: () => layout.rightPanel.toggle(),
       },
       {
         id: "project.open",
@@ -2512,6 +2520,29 @@ export default function Layout(props: ParentProps) {
             </div>
           </div>
         </div>
+        <Show when={layout.rightPanel.opened()}>
+          <div
+            class="hidden xl:block w-0 relative z-30"
+            onPointerDown={() => setState("sizing", true)}
+          >
+            <ResizeHandle
+              direction="horizontal"
+              edge="start"
+              size={layout.rightPanel.width()}
+              min={280}
+              max={typeof window === "undefined" ? 800 : Math.floor(window.innerWidth * 0.5)}
+              onResize={(w) => {
+                setState("sizing", true)
+                if (sizet !== undefined) clearTimeout(sizet)
+                sizet = window.setTimeout(() => setState("sizing", false), 120)
+                layout.rightPanel.resize(w)
+              }}
+            />
+          </div>
+          <div class="hidden xl:block">
+            <RightPanel />
+          </div>
+        </Show>
         {import.meta.env.DEV && <DebugBar />}
       </div>
       <StatusBar />
