@@ -1,0 +1,53 @@
+[data-component="dialog-context"] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 360px;
+  padding: 4px 0 8px;
+}
+
+[data-component="dialog-context"] [data-slot="dialog-context-empty"] {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-small);
+  color: var(--text-weak);
+}
+
+[data-component="dialog-context"] [data-slot="dialog-context-rows"] {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+[data-component="dialog-context"] [data-slot="dialog-context-row"] {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-base);
+}
+
+[data-component="dialog-context"] [data-slot="dialog-context-icon"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-base, var(--icon-strong-base));
+}
+
+[data-component="dialog-context"] [data-slot="dialog-context-label"] {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-small);
+  color: var(--text-weak);
+}
+
+[data-component="dialog-context"] [data-slot="dialog-context-value"] {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--text-strong);
+  letter-spacing: var(--letter-spacing-tight);
+  white-space: nowrap;
+}

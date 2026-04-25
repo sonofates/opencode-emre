@@ -1032,6 +1032,13 @@ export default function Layout(props: ParentProps) {
         onSelect: () => layout.rightPanel.toggle(),
       },
       {
+        id: "context.open",
+        title: "Open context",
+        category: language.t("command.category.view"),
+        keybind: "mod+i",
+        onSelect: () => openContext(),
+      },
+      {
         id: "project.open",
         title: language.t("command.project.open"),
         category: language.t("command.category.project"),
@@ -1228,6 +1235,14 @@ export default function Layout(props: ParentProps) {
     void import("@/components/dialog-settings").then((x) => {
       if (dialogDead || dialogRun !== run) return
       dialog.show(() => <x.DialogSettings />)
+    })
+  }
+
+  function openContext() {
+    const run = ++dialogRun
+    void import("@/components/dialog-context").then((x) => {
+      if (dialogDead || dialogRun !== run) return
+      dialog.show(() => <x.DialogContext />)
     })
   }
 

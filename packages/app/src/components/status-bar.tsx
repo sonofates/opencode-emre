@@ -2,6 +2,7 @@ import { createMemo, Show } from "solid-js"
 import { useParams } from "@solidjs/router"
 import { Icon } from "@opencode-ai/ui/icon"
 import { useLayout } from "@/context/layout"
+import { useCommand } from "@/context/command"
 import { useLanguage } from "@/context/language"
 import { decode64 } from "@/utils/base64"
 import { getFilename } from "@opencode-ai/shared/util/path"
@@ -17,6 +18,7 @@ const ACTIVITY_TAB_FALLBACKS: Record<string, string> = {
 
 export function StatusBar() {
   const layout = useLayout()
+  const command = useCommand()
   const language = useLanguage()
   const params = useParams<{ dir?: string }>()
 
@@ -59,7 +61,7 @@ export function StatusBar() {
           data-slot="status-bar-pill"
           data-action="true"
           aria-label="Open context"
-          onClick={() => layout.rightPanel.setTab("context")}
+          onClick={() => command.trigger("context.open")}
         >
           <Icon name="status" size="small" />
           <span>Context</span>
