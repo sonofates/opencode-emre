@@ -10,6 +10,7 @@ import { Instance } from "../../src/project/instance"
 import { SessionID, MessageID } from "../../src/session/schema"
 import { Instruction } from "../../src/session/instruction"
 import { ReadTool } from "../../src/tool/read"
+import { readCache } from "../../src/tool/read-cache"
 import { Truncate } from "../../src/tool"
 import { Tool } from "../../src/tool"
 import { Filesystem } from "../../src/util"
@@ -20,6 +21,7 @@ const FIXTURES_DIR = path.join(import.meta.dir, "fixtures")
 
 afterEach(async () => {
   await Instance.disposeAll()
+  readCache.clear()
 })
 
 const ctx = {
@@ -263,7 +265,7 @@ describe("tool.read truncation", () => {
       const content = base.length >= target ? base : base.repeat(Math.ceil(target / base.length))
       yield* put(path.join(dir, "large.json"), content)
 
-      const result = yield* exec(dir, { filePath: path.join(dir, "large.json") })
+      const result = yield* exec(dir, { filePath: path.join(dir, "large.json"), limit: 100000 })
       expect(result.metadata.truncated).toBe(true)
       expect(result.output).toContain("Output capped at")
       expect(result.output).toContain("Use offset=")
@@ -438,6 +440,66 @@ root_type Monster;`
       expect(result.attachments).toBeUndefined()
       expect(result.output).toContain("namespace MyGame")
       expect(result.output).toContain("table Monster")
+    }),
+  )
+
+  it.live("uses a 250-line default limit when no limit is specified", () =>
+    Effect.gen(function* () {
+      const dir = yield* tmpdirScoped()
+      const lines = Array.from({ length: 300 }, (_, i) => `line${i}`).join("\n")
+      yield* put(path.join(dir, "default-limit.txt"), lines)
+
+      const result = yield* run(
+        { filePath: path.join(dir, "default-limit.txt") },
+        ctx,
+      ).pipe(provideInstance(dir))
+      expect(result.metadata.truncated).toBe(true)
+      expect(result.output).toContain("Showing lines 1-250 of 300")
+      expect(result.output).toContain("Use offset=251")
+      expect(result.output).toContain("250: line249")
+      expect(result.output).not.toContain("251: line250")
+    }),
+  )
+})
+
+describe("tool.read cache", () => {
+  it.live("returns cached output on a second read with the same mtime", () =>
+    Effect.gen(function* () {
+      const dir = yield* tmpdirScoped()
+      const filepath = path.join(dir, "cache-hit.txt")
+      yield* put(filepath, "hello world")
+
+      const first = yield* run({ filePath: filepath }, ctx).pipe(provideInstance(dir))
+      expect(first.output).not.toContain("[cached from earlier read]")
+      expect(first.output).toContain("hello world")
+
+      const second = yield* run({ filePath: filepath }, ctx).pipe(provideInstance(dir))
+      expect(second.output.startsWith("[cached from earlier read]")).toBe(true)
+      expect(second.output).toContain("hello world")
+    }),
+  )
+
+  it.live("invalidates the cache when the file is modified", () =>
+    Effect.gen(function* () {
+      const dir = yield* tmpdirScoped()
+      const filepath = path.join(dir, "cache-miss.txt")
+      yield* put(filepath, "version 1")
+
+      const first = yield* run({ filePath: filepath }, ctx).pipe(provideInstance(dir))
+      expect(first.output).toContain("version 1")
+      expect(first.output).not.toContain("[cached from earlier read]")
+
+      // bump mtime by ~50 ms so even coarse filesystems see a change
+      const future = Date.now() + 50
+      yield* Effect.promise(async () => {
+        const fs = await import("node:fs/promises")
+        await fs.writeFile(filepath, "version 2")
+        await fs.utimes(filepath, future / 1000, future / 1000)
+      })
+
+      const second = yield* run({ filePath: filepath }, ctx).pipe(provideInstance(dir))
+      expect(second.output).toContain("version 2")
+      expect(second.output).not.toContain("[cached from earlier read]")
     }),
   )
 })

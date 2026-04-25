@@ -10,8 +10,9 @@ import { Instance } from "../project/instance"
 import { assertExternalDirectoryEffect } from "./external-directory"
 import { Instruction } from "../session/instruction"
 import { isImageAttachment, isPdfAttachment, sniffAttachmentMime } from "@/util/media"
+import { buildReadCacheKey, readCache, withCachedPrefix } from "./read-cache"
 
-const DEFAULT_READ_LIMIT = 2000
+const DEFAULT_READ_LIMIT = 250
 const MAX_LINE_LENGTH = 2000
 const MAX_LINE_SUFFIX = `... (line truncated to ${MAX_LINE_LENGTH} chars)`
 const MAX_BYTES = 50 * 1024
@@ -214,6 +215,21 @@ export const ReadTool = Tool.define(
         }
       }
 
+      const mtimeMs = Option.getOrElse(stat.mtime, () => new Date(0)).getTime()
+      const cacheKey = buildReadCacheKey(filepath, params.offset, params.limit)
+      const cached = mtimeMs > 0 ? readCache.get(ctx.sessionID, cacheKey, mtimeMs) : undefined
+      if (cached) {
+        return {
+          title,
+          output: withCachedPrefix(cached.output),
+          metadata: {
+            preview: "",
+            truncated: false,
+            loaded: [] as string[],
+          },
+        }
+      }
+
       const loaded = yield* instruction.resolve(ctx.messages, filepath, ctx.messageID)
       const sample = yield* readSample(filepath, Number(stat.size), SAMPLE_BYTES)
 
@@ -271,6 +287,10 @@ export const ReadTool = Tool.define(
 
       if (loaded.length > 0) {
         output += `\n\n<system-reminder>\n${loaded.map((item) => item.content).join("\n\n")}\n</system-reminder>`
+      }
+
+      if (mtimeMs > 0) {
+        readCache.set(ctx.sessionID, cacheKey, { mtime: mtimeMs, output })
       }
 
       return {
