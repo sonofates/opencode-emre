@@ -65,12 +65,18 @@ beforeEach(() => {
     value: storage,
     configurable: true,
   })
+  // setItem now defers via a 200ms timer-backed queue. Tests are
+  // synchronous, so reset any pending writes from a prior test and
+  // flush after each setItem manually below to keep semantics
+  // observable in the same tick.
+  persistTesting.resetPendingWrites()
 })
 
 describe("persist localStorage resilience", () => {
   test("does not cache values as persisted when quota write and eviction fail", () => {
     const storageApi = persistTesting.localStorageWithPrefix("opencode.quota.scope")
     storageApi.setItem("value", '{"value":1}')
+    persistTesting.flushPendingWrites()
 
     expect(storage.getItem("opencode.quota.scope:value")).toBeNull()
     expect(storageApi.getItem("value")).toBeNull()
@@ -79,23 +85,28 @@ describe("persist localStorage resilience", () => {
   test("disables only the failing scope when storage throws", () => {
     const bad = persistTesting.localStorageWithPrefix("opencode.throw.scope")
     bad.setItem("value", '{"value":1}')
+    persistTesting.flushPendingWrites()
 
     const before = storage.calls.set
     bad.setItem("value", '{"value":2}')
+    persistTesting.flushPendingWrites()
     expect(storage.calls.set).toBe(before)
     expect(bad.getItem("value")).toBeNull()
 
     const healthy = persistTesting.localStorageWithPrefix("opencode.safe.scope")
     healthy.setItem("value", '{"value":3}')
+    persistTesting.flushPendingWrites()
     expect(storage.getItem("opencode.safe.scope:value")).toBe('{"value":3}')
   })
 
   test("failing fallback scope does not poison direct storage scope", () => {
     const broken = persistTesting.localStorageWithPrefix("opencode.throw.scope2")
     broken.setItem("value", '{"value":1}')
+    persistTesting.flushPendingWrites()
 
     const direct = persistTesting.localStorageDirect()
     direct.setItem("direct-value", '{"value":5}')
+    persistTesting.flushPendingWrites()
 
     expect(storage.getItem("direct-value")).toBe('{"value":5}')
   })

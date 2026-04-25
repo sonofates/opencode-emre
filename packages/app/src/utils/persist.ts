@@ -158,6 +158,81 @@ function write(storage: Storage, key: string, value: string) {
   return ok
 }
 
+// === Deferred write queue ===
+// localStorage.setItem is synchronous and triggers JSON serialization
+// plus I/O on every call. In a hot path — most notably the prompt
+// store, which previously persisted on every keystroke — this blocks
+// the main thread and creates massive V8 GC pressure (we measured
+// ~42% of main thread time in GC during a 32 second trace, with
+// 2,793 incremental GC cycles). Coalesce per-key writes through a
+// 200ms debounce, dedup against the in-memory cache, and flush on
+// pagehide so persistence semantics aren't lost. The cache is only
+// updated inside the actual write() call, so reads see "last
+// successfully persisted" state — quota / throw failures still
+// surface as null from getItem after the flush runs.
+type PendingWrite = { storage: Storage; value: string; scope: string }
+const pendingWrites = new Map<string, PendingWrite>()
+let flushTimer: ReturnType<typeof setTimeout> | undefined
+const FLUSH_INTERVAL_MS = 200
+
+function flushPendingWrites() {
+  if (flushTimer !== undefined) {
+    clearTimeout(flushTimer)
+    flushTimer = undefined
+  }
+  if (pendingWrites.size === 0) return
+  const entries = Array.from(pendingWrites)
+  pendingWrites.clear()
+  for (const [key, { storage, value, scope }] of entries) {
+    try {
+      const ok = write(storage, key, value)
+      if (!ok) fallbackSet(scope)
+    } catch {
+      fallbackSet(scope)
+    }
+  }
+}
+
+function schedulePendingFlush() {
+  if (flushTimer !== undefined) return
+  flushTimer = setTimeout(() => {
+    flushTimer = undefined
+    flushPendingWrites()
+  }, FLUSH_INTERVAL_MS)
+}
+
+function resetPendingWrites() {
+  if (flushTimer !== undefined) {
+    clearTimeout(flushTimer)
+    flushTimer = undefined
+  }
+  pendingWrites.clear()
+}
+
+function deferredWrite(storage: Storage, key: string, value: string, scope: string): boolean {
+  // Dedup: same-value re-writes are extremely common when reactive
+  // stores re-emit identical states (e.g., scrollNow tick re-encoding
+  // the whole settings store). Two checks: "already pending a write"
+  // and "already on disk" (cache mirrors last successful write).
+  const pending = pendingWrites.get(key)
+  if (pending?.value === value) return true
+  if (cacheGet(key) === value) return true
+  pendingWrites.set(key, { storage, value, scope })
+  schedulePendingFlush()
+  return true
+}
+
+if (typeof window !== "undefined") {
+  const flush = () => flushPendingWrites()
+  window.addEventListener("pagehide", flush, { capture: true })
+  window.addEventListener("beforeunload", flush, { capture: true })
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") flush()
+    })
+  }
+}
+
 function snapshot(value: unknown) {
   return JSON.parse(JSON.stringify(value)) as unknown
 }
@@ -240,7 +315,7 @@ function localStorageWithPrefix(prefix: string): SyncStorage {
       const name = item(key)
       if (fallbackDisabled(scope)) return
       try {
-        if (write(localStorage, name, value)) return
+        if (deferredWrite(localStorage, name, value, scope)) return
       } catch {
         fallbackSet(scope)
         return
@@ -282,7 +357,7 @@ function localStorageDirect(): SyncStorage {
     setItem: (key, value) => {
       if (fallbackDisabled(scope)) return
       try {
-        if (write(localStorage, key, value)) return
+        if (deferredWrite(localStorage, key, value, scope)) return
       } catch {
         fallbackSet(scope)
         return
@@ -306,6 +381,8 @@ export const PersistTesting = {
   localStorageWithPrefix,
   normalize,
   workspaceStorage,
+  flushPendingWrites,
+  resetPendingWrites,
 }
 
 export const Persist = {
