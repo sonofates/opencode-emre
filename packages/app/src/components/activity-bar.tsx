@@ -18,7 +18,6 @@ const ITEMS: readonly ActivityItem[] = [
   { tab: "files", icon: "file-tree", labelKey: "activityBar.files", fallback: "Files" },
   { tab: "search", icon: "magnifying-glass-menu", labelKey: "activityBar.search", fallback: "Search" },
   { tab: "tasks", icon: "checklist", labelKey: "activityBar.tasks", fallback: "Tasks" },
-  { tab: "settings", icon: "settings-gear", labelKey: "activityBar.settings", fallback: "Settings" },
 ] as const
 
 export function ActivityBar() {

@@ -22,13 +22,13 @@ const APP_NAMES: Record<string, string> = {
   dev: "OpenCode Dev",
   beta: "OpenCode Beta",
   prod: "OpenCode",
-  emre: "OpenCode-Emre",
+  studio: "OpenCode Studio",
 }
 const APP_IDS: Record<string, string> = {
   dev: "ai.opencode.desktop.dev",
   beta: "ai.opencode.desktop.beta",
   prod: "ai.opencode.desktop",
-  emre: "ai.opencode.desktop.emre",
+  studio: "ai.opencode.studio",
 }
 const appId = app.isPackaged ? APP_IDS[CHANNEL] : "ai.opencode.desktop.dev"
 app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "OpenCode Dev")

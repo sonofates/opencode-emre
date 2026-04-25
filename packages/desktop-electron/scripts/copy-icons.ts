@@ -3,7 +3,7 @@ import { resolveChannel } from "./utils"
 
 const arg = process.argv[2]
 const channel =
-  arg === "dev" || arg === "beta" || arg === "prod" || arg === "emre" ? arg : resolveChannel()
+  arg === "dev" || arg === "beta" || arg === "prod" || arg === "studio" ? arg : resolveChannel()
 
 const src = `./icons/${channel}`
 const dest = "resources/icons"

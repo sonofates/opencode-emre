@@ -1,3 +1,48 @@
+# OpenCode Studio
+
+> A personal fork of [anomalyco/opencode](https://github.com/anomalyco/opencode) by Emre Ateş, focused on a Cursor-style desktop UI on top of the upstream agent. Released under the original MIT license.
+
+OpenCode Studio takes the OpenCode runtime as-is and layers an opinionated "studio" shell over the desktop app: an Activity Bar on the left, a Tasks/Preview/Context panel on the right, a status strip at the bottom, and an amber-on-slate theme. The agent, providers, plan/build modes, and CLI all behave exactly like upstream — Studio just rearranges the surface around them.
+
+## Features
+
+### v0.1 — Studio shell
+- **Activity Bar (48 px left rail)** with Chat, Files, Search, Tasks tabs. Clicking a tab opens the sidebar to the matching content; clicking the active tab closes it.
+- **Sidebar tab switcher** so the existing project rail can swap between sessions / files / search / placeholder pages without losing the upstream sidebar.
+- **Right Panel (⌘J)** with three tabs:
+  - *Tasks* — live checklist driven by the agent's `todowrite` tool.
+  - *Preview* — live Markdown render of every `.md` the agent writes (plans, specs, RFCs).
+  - *Context* — at-a-glance session info.
+- **Status Bar** — workspace + branch on the left, active activity tab + Context pill on the right.
+- **Context popover (⌘I)** — modal dialog with workspace, session, tokens, cost, message/part counts, todo progress.
+- **Titlebar shortcuts** — toggle the right panel and open the context popover from the top-right.
+- **Amber-on-slate theme** — slate-900 chrome, amber-500 accent across selected/focus states.
+
+### v0.2 — Efficiency + workflow
+- **Smart file truncation + read cache** — Read tool default drops from 2000 → 250 lines; identical reads in the same session are served from a per-session LRU cache (50 entries, mtime-stamped) prefixed with `[cached from earlier read]`. Big token savings on long sessions.
+- **⌘K palette prefixes** — type `>` to filter to commands, `@` reserved for symbol search (LSP integration TBD). Plain text still does the unified file + command + session search.
+- **Auto-approve edits toggle** — Settings → General. Off by default: write/edit tool calls flow through OpenCode's existing permission UI in chat. On: requests are auto-approved as before.
+
+## Install (macOS, Apple silicon)
+
+```bash
+bun install
+OPENCODE_CHANNEL=studio bun --cwd packages/desktop-electron run build
+OPENCODE_CHANNEL=studio bun --cwd packages/desktop-electron run package:mac
+cp -R "packages/desktop-electron/dist/mac-arm64/OpenCode Studio.app" /Applications/
+xattr -cr "/Applications/OpenCode Studio.app"
+```
+
+The build is unsigned (no Apple Developer ID), so on first launch use **Right-click → Open** or System Settings → Privacy & Security → "Open Anyway".
+
+User data lives at `~/Library/Application Support/ai.opencode.studio` — entirely separate from upstream `~/Library/Application Support/ai.opencode.desktop`, so both apps coexist.
+
+## License
+
+OpenCode Studio inherits the MIT license from upstream OpenCode (see `LICENSE`). All modifications in this fork are likewise MIT. Upstream attribution is preserved in every package.json.
+
+---
+
 <p align="center">
   <a href="https://opencode.ai">
     <picture>
