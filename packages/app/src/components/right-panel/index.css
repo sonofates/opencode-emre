@@ -145,8 +145,14 @@
 }
 
 [data-component="task-list"] [data-slot="task-list-item"][data-active="true"] {
-  background-color: var(--surface-base-interactive-active, var(--surface-base));
-  box-shadow: inset 2px 0 0 var(--accent-base, var(--border-base));
+  background-color: color-mix(in oklab, var(--accent-base, currentColor) 14%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent-base, var(--border-base));
+  padding-left: 5px;
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-active="true"] [data-slot="task-list-content"] {
+  color: var(--text-strong);
+  font-weight: var(--font-weight-medium);
 }
 
 [data-component="task-list"] [data-slot="task-list-marker"] {
@@ -202,8 +208,11 @@
 }
 
 [data-component="task-list"] [data-slot="task-list-item"][data-completed="true"] [data-slot="task-list-content"] {
-  text-decoration: line-through;
+  text-decoration-line: line-through;
+  text-decoration-color: var(--accent-base, currentColor);
+  text-decoration-thickness: 1.5px;
   color: var(--text-weak);
+  opacity: 0.65;
 }
 
 [data-component="task-list"] [data-slot="task-list-item"][data-cancelled="true"] [data-slot="task-list-content"] {
@@ -212,11 +221,40 @@
 }
 
 [data-component="task-list"] [data-slot="task-list-status"] {
-  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: color-mix(in oklab, var(--accent-base, currentColor) 18%, transparent);
   font-family: var(--font-family-mono);
-  font-size: 11px;
-  letter-spacing: var(--letter-spacing-tight);
-  color: var(--accent-base, var(--text-weak));
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-base, var(--text-strong));
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-active="true"] [data-slot="task-list-status"]::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent-base, currentColor);
+  animation: task-status-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes task-status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component="task-list"] [data-slot="task-list-item"][data-active="true"] [data-slot="task-list-status"]::before {
+    animation: none;
+  }
 }
 
 [data-component="md-preview"] {
