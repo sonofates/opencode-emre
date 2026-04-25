@@ -4,6 +4,7 @@ import { createEffect, on, Component, Show, onCleanup, createMemo, createSignal,
 import { createStore } from "solid-js/store"
 import { useLocal } from "@/context/local"
 import { selectionFromLines, type SelectedLineRange, useFile } from "@/context/file"
+import { useSettings } from "@/context/settings"
 import {
   ContentPart,
   DEFAULT_PROMPT,
@@ -108,6 +109,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const files = useFile()
   const prompt = usePrompt()
   const layout = useLayout()
+  const settings = useSettings()
   const comments = useComments()
   const dialog = useDialog()
   const providers = useProviders()
@@ -1606,6 +1608,58 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         </TooltipKeybind>
                       </div>
                     </Show>
+                    <div data-component="prompt-permissions-control">
+                      <Tooltip
+                        placement="top"
+                        gutter={4}
+                        value={
+                          settings.permissions.bypassAll()
+                            ? "Yolo: every tool call is auto-approved. Disable for safety."
+                            : settings.permissions.autoApprove()
+                              ? "Edit/write tool calls auto-approved. Other tools still ask."
+                              : "Every tool call asks for permission first."
+                        }
+                      >
+                        <Select
+                          size="normal"
+                          options={["ask", "auto-edits", "yolo"]}
+                          current={
+                            settings.permissions.bypassAll()
+                              ? "yolo"
+                              : settings.permissions.autoApprove()
+                                ? "auto-edits"
+                                : "ask"
+                          }
+                          label={(value) => {
+                            switch (value) {
+                              case "yolo":
+                                return "Yolo"
+                              case "auto-edits":
+                                return "Auto edits"
+                              default:
+                                return "Ask"
+                            }
+                          }}
+                          onSelect={(value) => {
+                            if (value === "yolo") {
+                              settings.permissions.setBypassAll(true)
+                            } else if (value === "auto-edits") {
+                              settings.permissions.setBypassAll(false)
+                              settings.permissions.setAutoApprove(true)
+                            } else {
+                              settings.permissions.setBypassAll(false)
+                              settings.permissions.setAutoApprove(false)
+                            }
+                            restoreFocus()
+                          }}
+                          class="capitalize max-w-[140px] text-text-base"
+                          valueClass={`truncate text-13-regular ${settings.permissions.bypassAll() ? "text-[#DC2626] font-medium" : "text-text-base"}`}
+                          triggerStyle={control()}
+                          triggerProps={{ "data-action": "prompt-permissions" }}
+                          variant="ghost"
+                        />
+                      </Tooltip>
+                    </div>
                   </Show>
                 </Show>
               </div>
