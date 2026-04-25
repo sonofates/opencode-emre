@@ -111,3 +111,96 @@
   line-height: var(--line-height-normal);
   color: var(--text-weak);
 }
+
+[data-component="task-list"] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+[data-component="task-list"] [data-slot="task-list-summary"] {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--text-weak);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+[data-component="task-list"] ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+[data-component="task-list"] [data-slot="task-list-item"] {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  align-items: start;
+  transition: background-color 120ms ease;
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-active="true"] {
+  background-color: var(--surface-base-interactive-active, var(--surface-base));
+}
+
+[data-component="task-list"] [data-slot="task-list-marker"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 999px;
+  border: 1px solid var(--border-weak-base);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--text-weak);
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-completed="true"] [data-slot="task-list-marker"] {
+  background-color: var(--accent-base, var(--surface-strong));
+  border-color: var(--accent-base, var(--border-base));
+  color: #ffffff;
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-active="true"] [data-slot="task-list-marker"] {
+  border-color: var(--accent-base, var(--border-base));
+  color: var(--accent-base, var(--text-strong));
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-cancelled="true"] [data-slot="task-list-marker"] {
+  border-color: var(--border-weaker-base);
+  color: var(--text-weaker, var(--text-weak));
+}
+
+[data-component="task-list"] [data-slot="task-list-content"] {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-normal);
+  color: var(--text-strong);
+  word-break: break-word;
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-completed="true"] [data-slot="task-list-content"] {
+  text-decoration: line-through;
+  color: var(--text-weak);
+}
+
+[data-component="task-list"] [data-slot="task-list-item"][data-cancelled="true"] [data-slot="task-list-content"] {
+  text-decoration: line-through;
+  color: var(--text-weaker, var(--text-weak));
+}
+
+[data-component="task-list"] [data-slot="task-list-status"] {
+  margin-top: 2px;
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--accent-base, var(--text-weak));
+}
