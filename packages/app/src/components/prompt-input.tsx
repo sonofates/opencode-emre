@@ -1487,6 +1487,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         current={local.agent.current()?.name ?? ""}
                         onSelect={(value) => {
                           local.agent.set(value)
+                          if (value === "audit") {
+                            layout.rightPanel.setTab("preview")
+                          }
                           restoreFocus()
                         }}
                         class="capitalize max-w-[160px] text-text-base"

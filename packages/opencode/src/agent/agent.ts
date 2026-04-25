@@ -9,6 +9,7 @@ import { Auth } from "../auth"
 import { ProviderTransform } from "../provider"
 
 import PROMPT_GENERATE from "./generate.txt"
+import PROMPT_AUDIT from "./prompt/audit.txt"
 import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
@@ -137,6 +138,38 @@ export const layer = Layer.effect(
                   "*": "deny",
                   [path.join(".opencode", "plans", "*.md")]: "allow",
                   [path.relative(Instance.worktree, path.join(Global.Path.data, path.join("plans", "*.md")))]: "allow",
+                },
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
+          audit: {
+            name: "audit",
+            description:
+              "Read-only audit mode. Produces a structured Markdown report under .opencode/audits/ without modifying production code.",
+            prompt: PROMPT_AUDIT,
+            options: {},
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                bash: "allow",
+                codesearch: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                edit: {
+                  "*": "deny",
+                  [path.join(".opencode", "audits", "*.md")]: "allow",
+                  [path.relative(Instance.worktree, path.join(Global.Path.data, path.join("audits", "*.md")))]: "allow",
+                },
+                external_directory: {
+                  [path.join(Global.Path.data, "audits", "*")]: "allow",
                 },
               }),
               user,
