@@ -13,6 +13,7 @@
     "typecheck": "tsgo -b",
     "predev": "bun ./scripts/predev.ts",
     "dev": "electron-vite dev",
+    "dev:studio": "bun ./scripts/dev-studio.ts",
     "prebuild": "bun ./scripts/prebuild.ts",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
@@ -20,7 +21,10 @@
     "package:mac": "electron-builder --mac --config electron-builder.config.ts",
     "package:win": "electron-builder --win --config electron-builder.config.ts",
     "package:linux": "electron-builder --linux --config electron-builder.config.ts",
-    "native:build": "bun install --cwd native"
+    "native:build": "bun install --cwd native",
+    "ship": "bun ./scripts/ship.ts",
+    "ship:studio": "OPENCODE_CHANNEL=studio bun ./scripts/ship.ts",
+    "watch:studio": "OPENCODE_CHANNEL=studio bun ./scripts/watch-studio.ts"
   },
   "main": "./out/main/index.js",
   "dependencies": {

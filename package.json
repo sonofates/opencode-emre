@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "bun run --cwd packages/opencode --conditions=browser src/index.ts",
     "dev:desktop": "bun --cwd packages/desktop-electron dev",
+    "dev:studio": "bun --cwd packages/desktop-electron dev:studio",
     "dev:web": "bun --cwd packages/app dev",
     "dev:console": "ulimit -n 10240 2>/dev/null; bun run --cwd packages/console/app dev",
     "dev:storybook": "bun --cwd packages/storybook storybook",
@@ -17,7 +18,9 @@
     "prepare": "husky",
     "random": "echo 'Random script'",
     "hello": "echo 'Hello World!'",
-    "test": "echo 'do not run tests from root' && exit 1"
+    "test": "echo 'do not run tests from root' && exit 1",
+    "ship:studio": "bun --cwd packages/desktop-electron ship:studio",
+    "watch:studio": "bun --cwd packages/desktop-electron watch:studio"
   },
   "workspaces": {
     "packages": [
