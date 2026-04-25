@@ -8,28 +8,28 @@
 }
 
 /*
- * OpenCode-Emre theme overrides.
+ * OpenCode Studio theme overrides.
  * Cursor-style slate base + Claude-style amber accent.
  * Layered after the upstream theme so token reads pick these up first.
  */
 @layer theme {
   :root {
-    --emre-accent-base: #f59e0b;
-    --emre-accent-hover: #fbbf24;
-    --emre-accent-active: #d97706;
-    --emre-accent-strong: #b45309;
-    --emre-accent-weak: rgba(245, 158, 11, 0.18);
-    --emre-accent-weaker: rgba(245, 158, 11, 0.08);
+    --studio-accent-base: #f59e0b;
+    --studio-accent-hover: #fbbf24;
+    --studio-accent-active: #d97706;
+    --studio-accent-strong: #b45309;
+    --studio-accent-weak: rgba(245, 158, 11, 0.18);
+    --studio-accent-weaker: rgba(245, 158, 11, 0.08);
 
-    --accent-base: var(--emre-accent-base);
-    --accent-hover: var(--emre-accent-hover);
-    --accent-active: var(--emre-accent-active);
-    --accent-strong: var(--emre-accent-strong);
-    --accent-weak: var(--emre-accent-weak);
+    --accent-base: var(--studio-accent-base);
+    --accent-hover: var(--studio-accent-hover);
+    --accent-active: var(--studio-accent-active);
+    --accent-strong: var(--studio-accent-strong);
+    --accent-weak: var(--studio-accent-weak);
 
-    --border-selected: var(--emre-accent-active);
-    --border-weak-selected: var(--emre-accent-weak);
-    --surface-base-interactive-active: var(--emre-accent-weak);
+    --border-selected: var(--studio-accent-active);
+    --border-weak-selected: var(--studio-accent-weak);
+    --surface-base-interactive-active: var(--studio-accent-weak);
 
     @media (prefers-color-scheme: dark) {
       /* Slate-900 family for the desktop chrome. */
@@ -42,7 +42,7 @@
       --border-weak-base: rgba(148, 163, 184, 0.18);
       --border-base: rgba(148, 163, 184, 0.28);
 
-      --border-selected: var(--emre-accent-base);
+      --border-selected: var(--studio-accent-base);
       --border-weak-selected: rgba(245, 158, 11, 0.28);
       --surface-base-interactive-active: rgba(245, 158, 11, 0.16);
     }
