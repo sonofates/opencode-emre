@@ -244,6 +244,18 @@ export const SettingsGeneral: Component = () => {
         </SettingsRow>
 
         <SettingsRow
+          title="Auto-approve file edits"
+          description="When enabled, the agent applies write/edit changes without asking. Disable to review each diff in chat first."
+        >
+          <div data-action="settings-auto-approve-edits">
+            <Switch
+              checked={settings.permissions.autoApprove()}
+              onChange={(checked) => settings.permissions.setAutoApprove(checked)}
+            />
+          </div>
+        </SettingsRow>
+
+        <SettingsRow
           title={language.t("settings.general.row.reasoningSummaries.title")}
           description={language.t("settings.general.row.reasoningSummaries.description")}
         >

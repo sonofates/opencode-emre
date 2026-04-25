@@ -5,6 +5,7 @@ import type { PermissionRequest } from "@opencode-ai/sdk/v2/client"
 import { Persist, persisted } from "@/utils/persist"
 import { useGlobalSDK } from "@/context/global-sdk"
 import { useGlobalSync } from "./global-sync"
+import { useSettings } from "./settings"
 import { useParams } from "@solidjs/router"
 import { decode64 } from "@/utils/base64"
 import {
@@ -159,14 +160,23 @@ export const { use: usePermission, provider: PermissionProvider } = createSimple
       return next
     }
 
+    const settings = useSettings()
+    const isEditPermission = (perm: PermissionRequest) =>
+      perm.permission === "edit" || perm.permission === "write"
+
     const unsubscribe = globalSDK.event.listen((e) => {
       const event = e.details
       if (event?.type !== "permission.asked") return
 
       const perm = event.properties
-      if (!shouldAutoRespond(perm, e.name)) return
+      if (shouldAutoRespond(perm, e.name)) {
+        respondOnce(perm, e.name)
+        return
+      }
 
-      respondOnce(perm, e.name)
+      if (settings.permissions.autoApprove() && isEditPermission(perm)) {
+        respondOnce(perm, e.name)
+      }
     })
     onCleanup(unsubscribe)
 
