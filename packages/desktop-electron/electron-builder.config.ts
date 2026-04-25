@@ -22,7 +22,7 @@ async function signWindows(configuration: { path: string }) {
 
 const channel = (() => {
   const raw = process.env.OPENCODE_CHANNEL
-  if (raw === "dev" || raw === "beta" || raw === "prod") return raw
+  if (raw === "dev" || raw === "beta" || raw === "prod" || raw === "emre") return raw
   return "dev"
 })()
 
@@ -107,6 +107,22 @@ function getConfig() {
         protocols: { name: "OpenCode", schemes: ["opencode"] },
         publish: { provider: "github", owner: "anomalyco", repo: "opencode", channel: "latest" },
         rpm: { packageName: "opencode" },
+      }
+    }
+    case "emre": {
+      return {
+        ...base,
+        appId: "ai.opencode.desktop.emre",
+        productName: "OpenCode-Emre",
+        artifactName: "OpenCode-Emre-${os}-${arch}.${ext}",
+        protocols: { name: "OpenCode-Emre", schemes: ["opencode-emre"] },
+        rpm: { packageName: "opencode-emre" },
+        mac: {
+          ...base.mac,
+          notarize: false,
+          identity: null,
+        },
+        dmg: { sign: false },
       }
     }
   }
