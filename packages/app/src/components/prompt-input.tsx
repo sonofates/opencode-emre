@@ -47,6 +47,7 @@ import {
   type PromptHistoryEntry,
   type PromptHistoryStoredEntry,
   promptLength,
+  stripHistoryEntryImageData,
 } from "./prompt-input/history"
 import { createPromptSubmit, type FollowupDraft } from "./prompt-input/submit"
 import { PromptPopover, type AtOption, type SlashCommand } from "./prompt-input/slash-popover"
@@ -324,8 +325,24 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     return messages.some((m) => m.role === "user")
   })
 
+  // Migrate any legacy entries that still carry full base64 `dataUrl`s
+  // for attached screenshots. Before v0.4.3 those were persisted into
+  // prompt-history and ballooned the global storage file to 150+ MB,
+  // which the renderer had to re-stringify on every flush.
+  const stripImageDataMigrate = (value: unknown) => {
+    if (!value || typeof value !== "object") return value
+    const v = value as { entries?: unknown[] }
+    if (!Array.isArray(v.entries)) return value
+    return {
+      ...v,
+      entries: v.entries.map((e) => stripHistoryEntryImageData(e as PromptHistoryStoredEntry)),
+    }
+  }
   const [history, setHistory] = persisted(
-    Persist.global("prompt-history", ["prompt-history.v1"]),
+    {
+      ...Persist.global("prompt-history", ["prompt-history.v1"]),
+      migrate: stripImageDataMigrate,
+    },
     createStore<{
       entries: PromptHistoryStoredEntry[]
     }>({
@@ -333,7 +350,10 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }),
   )
   const [shellHistory, setShellHistory] = persisted(
-    Persist.global("prompt-history-shell", ["prompt-history-shell.v1"]),
+    {
+      ...Persist.global("prompt-history-shell", ["prompt-history-shell.v1"]),
+      migrate: stripImageDataMigrate,
+    },
     createStore<{
       entries: PromptHistoryStoredEntry[]
     }>({

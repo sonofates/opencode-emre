@@ -43,6 +43,32 @@ export function clonePromptParts(prompt: Prompt): Prompt {
   })
 }
 
+/**
+ * Strip the base64 `dataUrl` from image parts so they don't bloat the
+ * persisted prompt history. We keep `id`, `filename`, and `mime` so the
+ * navigated prompt still shows what was attached; the actual image data
+ * is ephemeral and can be re-attached if the user wants to resubmit.
+ *
+ * Without this, every screenshot the user paste-attached to a prompt
+ * lived forever in `opencode.global.dat` — we observed a single field
+ * at 154 MB containing 37 base64-encoded screenshots, which made every
+ * Studio open / persist flush re-stringify and re-write the full blob,
+ * thrashing V8 GC and producing multi-second main-thread freezes.
+ */
+export function stripImagePartsForHistory(prompt: Prompt): Prompt {
+  return prompt.map((part) => {
+    if (part.type !== "image") return part
+    if (!("dataUrl" in part) || !part.dataUrl) return part
+    const { dataUrl: _, ...rest } = part as Prompt[number] & { dataUrl?: unknown }
+    return rest as Prompt[number]
+  })
+}
+
+export function stripHistoryEntryImageData(entry: PromptHistoryStoredEntry): PromptHistoryStoredEntry {
+  if (Array.isArray(entry)) return stripImagePartsForHistory(entry)
+  return { ...entry, prompt: stripImagePartsForHistory(entry.prompt) }
+}
+
 function cloneSelection(selection: SelectedLineRange): SelectedLineRange {
   return {
     start: selection.start,
@@ -91,7 +117,7 @@ export function prependHistoryEntry(
   if (!text && !hasImages && !hasComments) return entries
 
   const entry = {
-    prompt: clonePromptParts(prompt),
+    prompt: stripImagePartsForHistory(clonePromptParts(prompt)),
     comments: clonePromptHistoryComments(comments),
   } satisfies PromptHistoryEntry
   const last = entries[0]
