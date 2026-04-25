@@ -5,6 +5,7 @@ import { InstanceState } from "@/effect"
 import { AppFileSystem } from "@opencode-ai/shared/filesystem"
 import { Ripgrep } from "../file/ripgrep"
 import { assertExternalDirectoryEffect } from "./external-directory"
+import { buildTurnCacheKey, turnCache, withCachedTurnPrefix } from "./turn-cache"
 import DESCRIPTION from "./glob.txt"
 import * as Tool from "./tool"
 
@@ -36,6 +37,19 @@ export const GlobTool = Tool.define(
               path: params.path,
             },
           })
+
+          const cacheKey = buildTurnCacheKey("glob", {
+            pattern: params.pattern,
+            path: params.path ?? "",
+          })
+          const cached = turnCache.get(ctx.sessionID, ctx.messageID, cacheKey)
+          if (cached) {
+            return {
+              title: path.relative(ins.worktree, params.path ?? ins.directory),
+              metadata: { count: 0, truncated: false },
+              output: withCachedTurnPrefix("glob", cached.output),
+            }
+          }
 
           let search = params.path ?? ins.directory
           search = path.isAbsolute(search) ? search : path.resolve(ins.directory, search)
@@ -83,13 +97,15 @@ export const GlobTool = Tool.define(
             }
           }
 
+          const finalOutput = output.join("\n")
+          turnCache.set(ctx.sessionID, ctx.messageID, cacheKey, { output: finalOutput })
           return {
             title: path.relative(ins.worktree, search),
             metadata: {
               count: files.length,
               truncated,
             },
-            output: output.join("\n"),
+            output: finalOutput,
           }
         }).pipe(Effect.orDie),
     }

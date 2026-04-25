@@ -4,6 +4,7 @@ import { Icon } from "@opencode-ai/ui/icon"
 import { useLayout } from "@/context/layout"
 import { useCommand } from "@/context/command"
 import { useLanguage } from "@/context/language"
+import { useSettings } from "@/context/settings"
 import { decode64 } from "@/utils/base64"
 import { getFilename } from "@opencode-ai/shared/util/path"
 import "./status-bar.css"
@@ -20,6 +21,7 @@ export function StatusBar() {
   const layout = useLayout()
   const command = useCommand()
   const language = useLanguage()
+  const settings = useSettings()
   const params = useParams<{ dir?: string }>()
 
   const workspaceLabel = createMemo(() => {
@@ -52,6 +54,12 @@ export function StatusBar() {
         </Show>
       </div>
       <div data-slot="status-bar-right">
+        <Show when={settings.permissions.bypassAll()}>
+          <span data-slot="status-bar-pill" data-yolo="true" title="Yolo mode is on — every tool call is auto-approved.">
+            <Icon name="warning" size="small" />
+            <span>YOLO</span>
+          </span>
+        </Show>
         <span data-slot="status-bar-pill" data-muted="true">
           <Icon name="dot-grid" size="small" />
           <span>{tabLabel()}</span>

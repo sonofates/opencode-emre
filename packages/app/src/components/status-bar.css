@@ -43,6 +43,23 @@
   color: var(--text-weak);
 }
 
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-yolo="true"] {
+  background-color: #DC2626;
+  color: #ffffff;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  animation: yolo-pulse 1.6s ease-in-out infinite;
+}
+
+[data-component="status-bar"] [data-slot="status-bar-pill"][data-yolo="true"] [data-component="icon"] {
+  color: #ffffff;
+}
+
+@keyframes yolo-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 [data-component="status-bar"] [data-slot="status-bar-pill"][data-action="true"] {
   cursor: pointer;
 }

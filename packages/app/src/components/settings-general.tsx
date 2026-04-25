@@ -256,6 +256,47 @@ export const SettingsGeneral: Component = () => {
         </SettingsRow>
 
         <SettingsRow
+          title="Yolo mode — bypass all permission prompts"
+          description="DANGER. Auto-approves every tool call (bash, edit, write, ssh) without asking. The agent will run anything it decides to run. Only enable when you trust the prompt and have backups."
+        >
+          <div data-action="settings-bypass-all-permissions">
+            <Switch
+              checked={settings.permissions.bypassAll()}
+              onChange={(checked) => settings.permissions.setBypassAll(checked)}
+            />
+          </div>
+        </SettingsRow>
+
+        <SettingsRow
+          title="Compaction (advanced — read-only)"
+          description={
+            <>
+              <span>
+                OpenCode compacts long conversations automatically. Defaults: auto on, prune on,{" "}
+                <code>tail_turns</code> = 2. Tune by editing{" "}
+                <code>~/.config/opencode/opencode.json</code> directly:
+              </span>
+              <pre style={{ "margin-top": "8px", "font-size": "12px", "white-space": "pre-wrap" }}>
+{`{
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "tail_turns": 2,
+    "preserve_recent_tokens": 8000,
+    "reserved": 4000
+  }
+}`}
+              </pre>
+              <span style={{ color: "var(--text-weak)" }}>
+                Changes apply on next session start. Smaller <code>tail_turns</code> = more aggressive compaction = lower cost on long chats but more context loss.
+              </span>
+            </>
+          }
+        >
+          <div />
+        </SettingsRow>
+
+        <SettingsRow
           title={language.t("settings.general.row.reasoningSummaries.title")}
           description={language.t("settings.general.row.reasoningSummaries.description")}
         >

@@ -5,6 +5,7 @@ import { InstanceState } from "@/effect"
 import { AppFileSystem } from "@opencode-ai/shared/filesystem"
 import { Ripgrep } from "../file/ripgrep"
 import { assertExternalDirectoryEffect } from "./external-directory"
+import { buildTurnCacheKey, turnCache, withCachedTurnPrefix } from "./turn-cache"
 import DESCRIPTION from "./grep.txt"
 import * as Tool from "./tool"
 
@@ -50,6 +51,20 @@ export const GrepTool = Tool.define(
               include: params.include,
             },
           })
+
+          const cacheKey = buildTurnCacheKey("grep", {
+            pattern: params.pattern,
+            path: params.path ?? "",
+            include: params.include ?? "",
+          })
+          const cached = turnCache.get(ctx.sessionID, ctx.messageID, cacheKey)
+          if (cached) {
+            return {
+              title: params.pattern,
+              metadata: { matches: 0, truncated: false },
+              output: withCachedTurnPrefix("grep", cached.output),
+            }
+          }
 
           const ins = yield* InstanceState.context
           const search = AppFileSystem.resolve(
@@ -137,13 +152,15 @@ export const GrepTool = Tool.define(
             output.push("(Some paths were inaccessible and skipped)")
           }
 
+          const finalOutput = output.join("\n")
+          turnCache.set(ctx.sessionID, ctx.messageID, cacheKey, { output: finalOutput })
           return {
             title: params.pattern,
             metadata: {
               matches: total,
               truncated,
             },
-            output: output.join("\n"),
+            output: finalOutput,
           }
         }).pipe(Effect.orDie),
     }

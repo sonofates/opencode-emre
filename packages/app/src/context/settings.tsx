@@ -45,6 +45,7 @@ export interface Settings {
   keybinds: Record<string, string>
   permissions: {
     autoApprove: boolean
+    bypassAll: boolean
   }
   notifications: NotificationSettings
   sounds: SoundSettings
@@ -130,6 +131,7 @@ const defaultSettings: Settings = {
   keybinds: {},
   permissions: {
     autoApprove: false,
+    bypassAll: false,
   },
   notifications: {
     agent: true,
@@ -282,6 +284,10 @@ export const { use: useSettings, provider: SettingsProvider } = createSimpleCont
         autoApprove: withFallback(() => store.permissions?.autoApprove, defaultSettings.permissions.autoApprove),
         setAutoApprove(value: boolean) {
           setStore("permissions", "autoApprove", value)
+        },
+        bypassAll: withFallback(() => store.permissions?.bypassAll, defaultSettings.permissions.bypassAll),
+        setBypassAll(value: boolean) {
+          setStore("permissions", "bypassAll", value)
         },
       },
       notifications: {

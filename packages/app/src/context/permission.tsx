@@ -169,6 +169,15 @@ export const { use: usePermission, provider: PermissionProvider } = createSimple
       if (event?.type !== "permission.asked") return
 
       const perm = event.properties
+
+      // Yolo mode: auto-respond to ALL permission types regardless of rules.
+      // This is intentionally unconditional and overrides every other gate
+      // including directory-scoped auto-accept and the edit-only toggle.
+      if (settings.permissions.bypassAll()) {
+        respondOnce(perm, e.name)
+        return
+      }
+
       if (shouldAutoRespond(perm, e.name)) {
         respondOnce(perm, e.name)
         return
