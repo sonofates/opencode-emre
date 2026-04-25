@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test"
 import { createRoot, createSignal } from "solid-js"
-import { createSessionKeyReader, ensureSessionKey, pruneSessionKeys } from "./layout"
+import {
+  ACTIVITY_TABS,
+  createSessionKeyReader,
+  ensureSessionKey,
+  isActivityTab,
+  pruneSessionKeys,
+} from "./layout"
 
 describe("layout session-key helpers", () => {
   test("couples touch and scroll seed in order", () => {
@@ -65,5 +71,20 @@ describe("pruneSessionKeys", () => {
     })
 
     expect(drop).toEqual([])
+  })
+})
+
+describe("isActivityTab", () => {
+  test("accepts every declared tab", () => {
+    for (const tab of ACTIVITY_TABS) {
+      expect(isActivityTab(tab)).toBe(true)
+    }
+  })
+
+  test("rejects unknown values", () => {
+    expect(isActivityTab("unknown")).toBe(false)
+    expect(isActivityTab(undefined)).toBe(false)
+    expect(isActivityTab(42)).toBe(false)
+    expect(isActivityTab(null)).toBe(false)
   })
 })

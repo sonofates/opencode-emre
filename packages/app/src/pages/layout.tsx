@@ -60,6 +60,7 @@ import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useTheme, type ColorScheme } from "@opencode-ai/ui/theme/context"
 import { useCommand, type CommandOption } from "@/context/command"
 import { ConstrainDragXAxis, getDraggableId } from "@/utils/solid-dnd"
+import { ActivityBar } from "@/components/activity-bar"
 import { DebugBar } from "@/components/debug-bar"
 import { Titlebar } from "@/components/titlebar"
 import { useServer } from "@/context/server"
@@ -2362,6 +2363,9 @@ export default function Layout(props: ParentProps) {
       {autoselecting() ?? ""}
       <Titlebar />
       <div class="flex-1 min-h-0 min-w-0 flex">
+        <div class="hidden xl:block">
+          <ActivityBar />
+        </div>
         <div class="flex-1 min-h-0 relative">
           <div class="size-full relative overflow-x-hidden">
             <nav

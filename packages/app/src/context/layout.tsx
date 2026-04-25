@@ -20,6 +20,14 @@ const DEFAULT_SESSION_WIDTH = 600
 const DEFAULT_TERMINAL_HEIGHT = 280
 export type AvatarColorKey = (typeof AVATAR_COLOR_KEYS)[number]
 
+export const ACTIVITY_TABS = ["chat", "files", "search", "tasks", "settings"] as const
+export type ActivityTab = (typeof ACTIVITY_TABS)[number]
+const DEFAULT_ACTIVITY_TAB: ActivityTab = "chat"
+
+export function isActivityTab(value: unknown): value is ActivityTab {
+  return typeof value === "string" && (ACTIVITY_TABS as readonly string[]).includes(value)
+}
+
 export function getAvatarColors(key?: string) {
   if (key && AVATAR_COLOR_KEYS.includes(key as AvatarColorKey)) {
     return {
@@ -259,6 +267,9 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         sessionView: {} as Record<string, SessionView>,
         handoff: {
           tabs: undefined as TabHandoff | undefined,
+        },
+        activityBar: {
+          tab: DEFAULT_ACTIVITY_TAB as ActivityTab,
         },
       }),
     )
@@ -566,6 +577,20 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         },
         move(directory: string, toIndex: number) {
           server.projects.move(directory, toIndex)
+        },
+      },
+      activityBar: {
+        tab: createMemo(() => {
+          const value = store.activityBar?.tab
+          return isActivityTab(value) ? value : DEFAULT_ACTIVITY_TAB
+        }),
+        setTab(tab: ActivityTab) {
+          if (!store.activityBar) {
+            setStore("activityBar", { tab })
+            return
+          }
+          if (store.activityBar.tab === tab) return
+          setStore("activityBar", "tab", tab)
         },
       },
       sidebar: {
