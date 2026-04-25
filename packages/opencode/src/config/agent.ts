@@ -13,6 +13,7 @@ import { InvalidError } from "./error"
 import * as ConfigMarkdown from "./markdown"
 import { ConfigModelID } from "./model-id"
 import { ConfigPermission } from "./permission"
+import { ShellToolID } from "@/tool/shell/id"
 
 const log = Log.create({ service: "config" })
 
@@ -86,8 +87,12 @@ const normalize = (agent: z.infer<typeof Info>) => {
   const permission: ConfigPermission.Info = {}
   for (const [tool, enabled] of Object.entries(agent.tools ?? {})) {
     const action = enabled ? "allow" : "deny"
-    if (tool === "write" || tool === "edit" || tool === "patch") {
+    if (tool === "write" || tool === "edit" || tool === "patch" || tool === "multiedit") {
       permission.edit = action
+      continue
+    }
+    if (ShellToolID.normalize(tool) === ShellToolID.id) {
+      permission.shell = action
       continue
     }
     permission[tool] = action
